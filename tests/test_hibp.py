@@ -7,7 +7,7 @@ class TestHIBP(unittest.TestCase):
 
     def test_password_found(self):
 
-        password = "Cavalo-Minessota-Fuga"
+        password = "ADD PASSWORD HERE"
 
         result = check_password(password)
 
@@ -21,7 +21,7 @@ class TestHIBP(unittest.TestCase):
 
     def test_response_structure(self):
 
-        password = "Cavalo-Minessota-Fuga"
+        password = "ADD PASSWORD HERE"
 
         result = check_password(password)
 
