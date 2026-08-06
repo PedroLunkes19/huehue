@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "password-analyzer"
+version = "0.1.0"
+description = "A Python-based password strength analyzer inspired by zxcvbn and nbvcxz."
+authors = [
+    {name = "Pedro Lunkes"}
+]
+requires-python = ">=3.10"
+dependencies = [
+    "requests"
+]
+
+
+[project.scripts]
+password-analyzer = "password_analyzer.main:main"
