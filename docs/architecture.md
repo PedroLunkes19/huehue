@@ -5,7 +5,7 @@ huehue is a python-based application designed to evaluate password security.
 ## Project Structure
 
 The project follows a modular architecture, where each module is responsible for a specific part of the password evaluation process.
-
+```
 huehue/
 │
 ├── src/
@@ -27,7 +27,7 @@ huehue/
 ├── pyproject.toml
 ├── requirements.txt
 └── README.md
-
+```
 
 ## Module Responsibilities
 
@@ -109,7 +109,7 @@ Contains automated tests to verify the functionality of different application mo
 
 
 ## Architecture Flow
-
+```
 Password Input
 
         |
@@ -139,3 +139,4 @@ Local Analysis
         v
 
 Final Score (1-4/4)
+```
