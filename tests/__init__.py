@@ -1,0 +1,3 @@
+TEST_PASSWORD = "maria123"
+
+TEST_PASSWORD_NOT_FOUND = "xqzvjkpmw9842"

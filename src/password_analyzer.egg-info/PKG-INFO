@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: password-analyzer
+Version: 0.1.0
+Summary: A Python-based password strength analyzer inspired by zxcvbn and nbvcxz.
+Author: Pedro Lunkes
+Requires-Python: >=3.10
+License-File: LICENSE
+Requires-Dist: requests
+Dynamic: license-file

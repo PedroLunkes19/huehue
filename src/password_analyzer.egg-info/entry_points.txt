@@ -1,0 +1,2 @@
+[console_scripts]
+password-analyzer = password_analyzer.main:main

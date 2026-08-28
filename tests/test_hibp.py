@@ -2,40 +2,57 @@ import unittest
 
 from password_analyzer.api.hibp import check_password
 
+from tests import (
+    TEST_PASSWORD,
+)
+
 
 class TestHIBP(unittest.TestCase):
 
     def test_password_found(self):
 
-        password = "ADD PASSWORD HERE"
-
-        result = check_password(password)
-
-        self.assertTrue(result["found"])
-        self.assertGreater(result["count"], 0)
-
-        print(
-            f"\nSenha encontrada {result['count']} vezes"
+        result = check_password(
+            TEST_PASSWORD,
         )
 
+        self.assertTrue(
+            result["found"],
+        )
+
+        self.assertGreater(
+            result["count"],
+            0,
+        )
+
+        print(
+            f"\nSenha encontrada "
+            f"{result['count']} vezes"
+        )
 
     def test_response_structure(self):
 
-        password = "ADD PASSWORD HERE"
+        result = check_password(
+            TEST_PASSWORD,
+        )
 
-        result = check_password(password)
+        self.assertIn(
+            "found",
+            result,
+        )
 
-        self.assertIn("found", result)
-        self.assertIn("count", result)
+        self.assertIn(
+            "count",
+            result,
+        )
 
         self.assertIsInstance(
             result["found"],
-            bool
+            bool,
         )
 
         self.assertIsInstance(
             result["count"],
-            int
+            int,
         )
 
 
