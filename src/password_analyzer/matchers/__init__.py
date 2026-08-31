@@ -1,10 +1,14 @@
 from pathlib import Path
 
+
+from .dates import find_date
+from .keyboard import find_keyboard_pattern
+from .patterns import find_patterns
+from .repetition import find_repetition
 from .dictionary import (
     find_best_match,
     load_dataset,
 )
-
 
 DATA_DIRECTORY = Path(__file__).resolve().parent.parent / "data"
 
@@ -14,33 +18,33 @@ DATASETS = {
         "file": "common_passwords.txt",
         "priority": 1,
     },
-    "eff_large": {
-        "file": "eff_large.txt",
-        "priority": 2,
-    },
     "names_brazil": {
         "file": "names_brazil.tsv",
         "value_column": 0,
         "frequency_column": 1,
-        "priority": 3,
+        "priority": 2,
+    },
+    "names_english": {
+        "file": "names_english.txt",
+        "priority": 2,
     },
     "surnames_brazil": {
         "file": "surnames_brazil.tsv",
         "value_column": 1,
         "frequency_column": 2,
-        "priority": 4,
-    },
-    "names_english": {
-        "file": "names_english.txt",
-        "priority": 5,
+        "priority": 3,
     },
     "surnames_english": {
         "file": "surnames_english.txt",
-        "priority": 6,
+        "priority": 3,
+    },
+    "eff_large": {
+        "file": "eff_large.txt",
+        "priority": 4,
     },
     "english": {
         "file": "english.txt",
-        "priority": 7,
+        "priority": 4,
     },
 }
 
@@ -80,21 +84,6 @@ def check_dictionary_matches(
     Check a password against all dictionary datasets.
 
     All matches are returned and ordered by dataset priority.
-
-    Priority:
-        1. common_passwords
-        2. eff_large
-        3. names_brazil
-        4. surnames_brazil
-        5. names_english
-        6. surnames_english
-        7. english
-
-    Returns:
-        {
-            "present": bool,
-            "matches": list
-        }
     """
     matches = []
 
@@ -124,9 +113,75 @@ def check_dictionary_matches(
     }
 
 
+def match_password(
+    password: str,
+    datasets: dict,
+    min_dictionary_length: int = 3,
+    min_repetition_length: int = 3,
+    min_keyboard_length: int = 3,
+) -> dict:
+    """
+    Run all password matchers against a password.
+
+    Matchers:
+        - dictionary
+        - date
+        - repetition
+        - patterns
+        - keyboard
+
+    Args:
+        password:
+            Password to analyze.
+
+        datasets:
+            Loaded dictionary datasets.
+
+        min_dictionary_length:
+            Minimum length for dictionary matches.
+
+        min_repetition_length:
+            Minimum length for repeated characters.
+
+        min_keyboard_length:
+            Minimum length for keyboard patterns.
+
+    Returns:
+        A dictionary containing the result of every matcher.
+    """
+    return {
+        "password": password,
+
+        "dictionary": check_dictionary_matches(
+            password=password,
+            datasets=datasets,
+            min_length=min_dictionary_length,
+        ),
+
+        "date": find_date(
+            password=password,
+        ),
+
+        "repetition": find_repetition(
+            password=password,
+            min_length=min_repetition_length,
+        ),
+
+        "patterns": find_patterns(
+            password=password,
+        ),
+
+        "keyboard": find_keyboard_pattern(
+            password=password,
+            min_length=min_keyboard_length,
+        ),
+    }
+
+
 __all__ = [
     "DATA_DIRECTORY",
     "DATASETS",
     "load_datasets",
     "check_dictionary_matches",
+    "match_password",
 ]
