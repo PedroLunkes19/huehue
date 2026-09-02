@@ -5,10 +5,8 @@ from .dates import find_date
 from .keyboard import find_keyboard_pattern
 from .patterns import find_patterns
 from .repetition import find_repetition
-from .dictionary import (
-    find_best_match,
-    load_dataset,
-)
+from .dictionary import find_best_match, load_dataset
+
 
 DATA_DIRECTORY = Path(__file__).resolve().parent.parent / "data"
 
@@ -49,12 +47,8 @@ DATASETS = {
 }
 
 
-def load_datasets(
-    data_directory: Path = DATA_DIRECTORY,
-) -> dict:
-    """
-    Load all configured dictionary datasets.
-    """
+# Load all configured dictionary datasets.
+def load_datasets(data_directory: Path = DATA_DIRECTORY) -> dict:
     datasets = {}
 
     for dataset_name, configuration in DATASETS.items():
@@ -75,16 +69,9 @@ def load_datasets(
     return datasets
 
 
-def check_dictionary_matches(
-    password: str,
-    datasets: dict,
-    min_length: int = 3,
-) -> dict:
-    """
-    Check a password against all dictionary datasets.
-
-    All matches are returned and ordered by dataset priority.
-    """
+# Check a password against all dictionary datasets.
+# All matches are returned and ordered by dataset priority.
+def check_dictionary_matches(password: str, datasets: dict, min_length: int = 3) -> dict:
     matches = []
 
     for dataset_name, dataset in datasets.items():
@@ -103,9 +90,7 @@ def check_dictionary_matches(
 
         matches.append(match)
 
-    matches.sort(
-        key=lambda match: match["priority"]
-    )
+    matches.sort(key=lambda match: match["priority"])
 
     return {
         "present": bool(matches),
@@ -113,13 +98,7 @@ def check_dictionary_matches(
     }
 
 
-def match_password(
-    password: str,
-    datasets: dict,
-    min_dictionary_length: int = 3,
-    min_repetition_length: int = 3,
-    min_keyboard_length: int = 3,
-) -> dict:
+def match_password(password: str, datasets: dict, min_dictionary_length: int = 3, min_repetition_length: int = 3, min_keyboard_length: int = 3,) -> dict:
     """
     Run all password matchers against a password.
 
@@ -158,18 +137,14 @@ def match_password(
             min_length=min_dictionary_length,
         ),
 
-        "date": find_date(
-            password=password,
-        ),
+        "date": find_date(password=password),
 
         "repetition": find_repetition(
             password=password,
             min_length=min_repetition_length,
         ),
 
-        "patterns": find_patterns(
-            password=password,
-        ),
+        "patterns": find_patterns(password=password),
 
         "keyboard": find_keyboard_pattern(
             password=password,

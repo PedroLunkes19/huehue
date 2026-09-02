@@ -1,33 +1,32 @@
 import re
-from typing import Optional
 
 
-RepetitionMatch = Optional[dict]
+RepetitionMatch = dict | None
 
 
-def find_repetition(
-    password: str,
-    min_length: int = 3,
-) -> RepetitionMatch:
+def find_repetition(password: str, min_length: int = 3) -> RepetitionMatch:
     """
-    Find repeated consecutive characters in a password.
+    Find a consecutive repetition of the same character in a password.
 
-    Example:
+    The repetition must contain at least min_length consecutive occurrences of the same character.
+
+    Examples:
+        senha123 -> no repetition
         senha111 -> 111
-        abcaaaa -> aaaa
+        passaaa123 -> aaa
+        senha!!!! -> !!!!
 
     Args:
         password: Password to analyze.
-        min_length: Minimum number of repeated characters.
+        min_length: Minimum number of consecutive identical
+            characters required to consider a repetition.
 
     Returns:
-        A dictionary containing the repetition,
+        A dictionary containing the detected repetition,
         or None if no repetition is found.
     """
     if min_length < 2:
-        raise ValueError(
-            "min_length must be at least 2"
-        )
+        raise ValueError("min_length must be at least 2")
 
     pattern = re.compile(
         rf"(?P<character>.)"

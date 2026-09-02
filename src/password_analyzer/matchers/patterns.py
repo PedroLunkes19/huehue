@@ -1,5 +1,4 @@
 import re
-from typing import Optional
 
 
 PatternMatch = dict
@@ -16,9 +15,7 @@ SEQUENCE_PATTERN = re.compile(
 )
 
 
-def find_numeric_sequence(
-    password: str,
-) -> Optional[PatternMatch]:
+def find_numeric_sequence(password: str) -> PatternMatch | None:
     """
     Find an ascending or descending numeric sequence.
 
@@ -48,24 +45,8 @@ def find_numeric_sequence(
     }
 
 
-def find_first_character_uppercase(
-    password: str,
-) -> Optional[PatternMatch]:
-    """
-    Check whether the first character is the only uppercase
-    character in the password.
-
-    Examples:
-        Senha123 -> detected
-        Senha123! -> detected
-        SENHA123 -> not detected
-        senha123 -> not detected
-        SenhaTeste123 -> not detected
-
-    Returns:
-        A dictionary describing the pattern,
-        or None if the pattern is not found.
-    """
+def find_first_character_uppercase(password: str) -> PatternMatch | None:
+    # Check whether the first character is the only uppercase character in the password.
     if not password:
         return None
 
@@ -88,23 +69,8 @@ def find_first_character_uppercase(
     }
 
 
-def find_trailing_characters(
-    password: str,
-) -> Optional[PatternMatch]:
-    """
-    Find numeric or special characters at the end of a password.
-
-    Examples:
-        Senha123 -> 123
-        Senha! -> !
-        Senha123! -> 123!
-        Senha!@# -> !@#
-
-    Returns:
-        A dictionary containing the trailing characters,
-        or None if the password does not end with a number
-        or special character.
-    """
+def find_trailing_characters(password: str) -> PatternMatch | None:
+    # Find numeric or special characters at the end of a password.
     match = re.search(
         r"(?P<trailing>[\d\W_]+)$",
         password,
@@ -124,41 +90,23 @@ def find_trailing_characters(
     }
 
 
-def find_patterns(
-    password: str,
-) -> list[PatternMatch]:
-    """
-    Find all known patterns in a password.
-
-    Patterns detected:
-        - numeric sequences
-        - first character as the only uppercase character
-        - numbers or special characters at the end
-
-    Returns:
-        A list containing all detected patterns.
-    """
+def find_patterns(password: str) -> list[PatternMatch]:
+    # Find all known patterns in a password.
     patterns: list[PatternMatch] = []
 
-    numeric_sequence = find_numeric_sequence(
-        password=password,
-    )
+    numeric_sequence = find_numeric_sequence(password=password)
 
     if numeric_sequence is not None:
         patterns.append(numeric_sequence)
 
-    first_character_uppercase = (
-        find_first_character_uppercase(
-            password=password,
-        )
+    first_character_uppercase = find_first_character_uppercase(
+        password=password
     )
 
     if first_character_uppercase is not None:
         patterns.append(first_character_uppercase)
 
-    trailing_characters = find_trailing_characters(
-        password=password,
-    )
+    trailing_characters = find_trailing_characters(password=password)
 
     if trailing_characters is not None:
         patterns.append(trailing_characters)

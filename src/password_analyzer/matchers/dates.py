@@ -1,8 +1,7 @@
 import re
-from typing import Optional
 
 
-DateMatch = Optional[dict]
+DateMatch = dict | None
 
 
 DATE_PATTERN = re.compile(
