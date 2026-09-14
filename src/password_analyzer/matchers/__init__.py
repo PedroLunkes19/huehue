@@ -5,7 +5,7 @@ from .dates import find_date
 from .keyboard import find_keyboard_pattern
 from .patterns import find_patterns
 from .repetition import find_repetition
-from .dictionary import find_best_match, load_dataset
+from .dictionary import find_best_match, load_dataset, NORMALIZED_CASE_DATASETS
 
 
 DATA_DIRECTORY = Path(__file__).resolve().parent.parent / "data"
@@ -58,6 +58,7 @@ def load_datasets(data_directory: Path = DATA_DIRECTORY) -> dict:
             path=path,
             value_column=configuration.get("value_column"),
             frequency_column=configuration.get("frequency_column"),
+            dataset_name=dataset_name,
         )
 
         datasets[dataset_name] = {
@@ -80,6 +81,7 @@ def check_dictionary_matches(password: str, datasets: dict, min_length: int = 3)
             entries=dataset["entries"],
             frequencies=dataset["frequencies"],
             min_length=min_length,
+            normalize_case=dataset_name in NORMALIZED_CASE_DATASETS,
         )
 
         if match is None:

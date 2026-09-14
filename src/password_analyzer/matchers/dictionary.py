@@ -3,8 +3,16 @@ from pathlib import Path
 
 Frequency = float | None
 
+# Names of the datasets that needs to be normalized for comparison
+NORMALIZED_CASE_DATASETS = {
+    "names_brazil",
+    "names_english",
+    "surnames_brazil",
+    "surnames_english",
+}
 
-def load_simple_dataset(path: Path) -> tuple[set[str], dict[str, Frequency]]:
+
+def load_simple_dataset(path: Path, normalize_case: bool = False) -> tuple[set[str], dict[str, Frequency]]:
     # Load a dataset containing one value per line.
     entries: set[str] = set()
     frequencies: dict[str, Frequency] = {}
@@ -16,6 +24,9 @@ def load_simple_dataset(path: Path) -> tuple[set[str], dict[str, Frequency]]:
             if not value:
                 continue
 
+            if normalize_case:
+                value = value.casefold()
+
             entries.add(value)
             frequencies[value] = None
 
@@ -26,6 +37,7 @@ def load_tsv_dataset(
     path: Path,
     value_column: int,
     frequency_column: int,
+    normalize_case: bool = False,
 ) -> tuple[set[str], dict[str, Frequency]]:
     # Load a TSV dataset containing values and frequencies.
     entries: set[str] = set()
@@ -46,6 +58,9 @@ def load_tsv_dataset(
             if not value:
                 continue
 
+            if normalize_case:
+                value = value.casefold()
+
             try:
                 frequency = float(columns[frequency_column])
             except ValueError:
@@ -57,16 +72,27 @@ def load_tsv_dataset(
     return entries, frequencies
 
 
-def load_dataset(path: Path, value_column: int | None = None, frequency_column: int | None = None) -> tuple[set[str], dict[str, Frequency]]:
+def load_dataset(
+    path: Path,
+    value_column: int | None = None,
+    frequency_column: int | None = None,
+    dataset_name: str | None = None,
+) -> tuple[set[str], dict[str, Frequency]]:
     # Load a dictionary dataset.
+    # A comparação é normalizada (case-insensitive) apenas para os
+    # datasets listados em NORMALIZED_CASE_DATASETS. Passe o nome lógico
+    # do dataset (ex: "names_brazil") em `dataset_name` para ativar isso.
+    normalize_case = dataset_name in NORMALIZED_CASE_DATASETS
+
     if value_column is not None and frequency_column is not None:
         return load_tsv_dataset(
             path=path,
             value_column=value_column,
             frequency_column=frequency_column,
+            normalize_case=normalize_case,
         )
 
-    return load_simple_dataset(path)
+    return load_simple_dataset(path, normalize_case=normalize_case)
 
 
 def find_best_match(
@@ -74,6 +100,7 @@ def find_best_match(
     entries: set[str],
     frequencies: dict[str, Frequency],
     min_length: int = 3,
+    normalize_case: bool = False,
 ) -> dict | None:
     """
     Find the best dictionary match contained in a password.
@@ -83,12 +110,20 @@ def find_best_match(
     2. Match with known frequency.
     3. Highest frequency.
     4. Longest matching substring.
+
+    Quando `normalize_case=True` (usado para os datasets de nomes e
+    sobrenomes), a comparação é feita ignorando maiúsculas/minúsculas,
+    mas os valores "start"/"end"/"length" retornados continuam se
+    referindo à senha original (não normalizada), e o "value" retornado
+    é o trecho original da senha (não o casefolded).
     """
     best_match: dict | None = None
 
+    search_password = password.casefold() if normalize_case else password
+
     # Check for an exact password match first.
-    if password in entries:
-        frequency = frequencies.get(password)
+    if search_password in entries:
+        frequency = frequencies.get(search_password)
 
         return {
             "value": password,
@@ -103,11 +138,12 @@ def find_best_match(
     for start in range(len(password)):
         for end in range(start + min_length, len(password) + 1):
             substring = password[start:end]
+            search_substring = substring.casefold() if normalize_case else substring
 
-            if substring not in entries:
+            if search_substring not in entries:
                 continue
 
-            frequency = frequencies.get(substring)
+            frequency = frequencies.get(search_substring)
 
             current_match = {
                 "value": substring,
