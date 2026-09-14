@@ -79,9 +79,8 @@ def load_dataset(
     dataset_name: str | None = None,
 ) -> tuple[set[str], dict[str, Frequency]]:
     # Load a dictionary dataset.
-    # A comparação é normalizada (case-insensitive) apenas para os
-    # datasets listados em NORMALIZED_CASE_DATASETS. Passe o nome lógico
-    # do dataset (ex: "names_brazil") em `dataset_name` para ativar isso.
+    # The comparison is normalized (case-insensitive) only for the
+    # datasets listed in NORMALIZED_CASE_DATASETS.
     normalize_case = dataset_name in NORMALIZED_CASE_DATASETS
 
     if value_column is not None and frequency_column is not None:
