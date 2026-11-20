@@ -14,10 +14,7 @@ def check_password(password: str) -> list[RuleMatch]:
     if blacklist_match is not None:
         matches.append(blacklist_match)
 
-    composition_match = check_composition(password)
-
-    if composition_match is not None:
-        matches.append(composition_match)
+    matches.extend(check_composition(password))
 
     return matches
 

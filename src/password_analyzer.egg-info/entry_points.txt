@@ -1,2 +1,3 @@
 [console_scripts]
+huehue = password_analyzer.main:main
 password-analyzer = password_analyzer.main:main

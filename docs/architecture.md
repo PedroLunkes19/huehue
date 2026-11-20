@@ -15,8 +15,7 @@ huehue/
 │       ├── matchers/
 │       ├── rules/
 │       ├── models/
-│       ├── data/
-│       └── utils/
+│       └── data/
 │
 ├── tests/
 │

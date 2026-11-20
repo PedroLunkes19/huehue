@@ -18,7 +18,7 @@ src/password_analyzer/core/scoring.py
 src/password_analyzer/matchers/__init__.py
 src/password_analyzer/matchers/dates.py
 src/password_analyzer/matchers/dictionary.py
-src/password_analyzer/matchers/keybord.py
+src/password_analyzer/matchers/keyboard.py
 src/password_analyzer/matchers/patterns.py
 src/password_analyzer/matchers/repetition.py
 src/password_analyzer/models/__init__.py
@@ -31,3 +31,4 @@ tests/test_dictionary.py
 tests/test_entropy.py
 tests/test_hibp.py
 tests/test_patterns.py
+tests/test_scoring.py
