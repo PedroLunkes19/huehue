@@ -4,6 +4,8 @@ from pathlib import Path
 Frequency = float | None
 
 # Names of the datasets that needs to be normalized for comparison
+
+# Nomes de datasets que precisam ser normalizados para comparação
 NORMALIZED_CASE_DATASETS = {
     "names_brazil",
     "names_english",
@@ -14,6 +16,8 @@ NORMALIZED_CASE_DATASETS = {
 
 def load_simple_dataset(path: Path, normalize_case: bool = False) -> tuple[set[str], dict[str, Frequency]]:
     # Load a dataset containing one value per line.
+
+    # Carrega um dataset contendo um valor por linha
     entries: set[str] = set()
     frequencies: dict[str, Frequency] = {}
 
@@ -40,6 +44,8 @@ def load_tsv_dataset(
     normalize_case: bool = False,
 ) -> tuple[set[str], dict[str, Frequency]]:
     # Load a TSV dataset containing values and frequencies.
+
+    # Carrega um dataset TSV contendo valores e frequencias.
     entries: set[str] = set()
     frequencies: dict[str, Frequency] = {}
 
@@ -79,8 +85,10 @@ def load_dataset(
     dataset_name: str | None = None,
 ) -> tuple[set[str], dict[str, Frequency]]:
     # Load a dictionary dataset.
-    # The comparison is normalized (case-insensitive) only for the
-    # datasets listed in NORMALIZED_CASE_DATASETS.
+    # The comparison is normalized (case-insensitive) only for the datasets listed in NORMALIZED_CASE_DATASETS.
+
+    # Carrega um dataset dicionário
+    # A comparação é normalizada (case-insensitive) apenas para os datasets listados no NORMALIZED_CASE_DATASETS.
     normalize_case = dataset_name in NORMALIZED_CASE_DATASETS
 
     if value_column is not None and frequency_column is not None:
@@ -110,17 +118,30 @@ def find_best_match(
     3. Highest frequency.
     4. Longest matching substring.
 
-    Quando `normalize_case=True` (usado para os datasets de nomes e
-    sobrenomes), a comparação é feita ignorando maiúsculas/minúsculas,
-    mas os valores "start"/"end"/"length" retornados continuam se
-    referindo à senha original (não normalizada), e o "value" retornado
-    é o trecho original da senha (não o casefolded).
+    When "normalize_case = TRUE" the comparison is case-insensitive, but the returned values for "start"/"end"/"length"
+    refers to the original password, and the returned "value" is the stretch from the original password. 
     """
+
+    """
+    Encontra o melhor dictionary match contido em uma senha
+
+    Prioridade dos match:
+    1. Um match exato de toda a senha.
+    2. Um match com uma frequência conhecida.
+    3. A maior frequência.
+    4. Um match com a maior substring.
+
+    Quando "normalize_case = TRUE" a comapração é case-insensitive, mas os valores "start"/"end"/"length" 
+    retornados ainda se referem a senha original, e o "value" retornado é o trecho original da senha.
+    """
+    
     best_match: dict | None = None
 
     search_password = password.casefold() if normalize_case else password
 
     # Check for an exact password match first.
+
+    # Checa para um match exato da senha primeiro
     if search_password in entries:
         frequency = frequencies.get(search_password)
 
@@ -134,6 +155,8 @@ def find_best_match(
         }
 
     # Search for substring matches.
+
+    # Procura por matches em substrings.
     for start in range(len(password)):
         for end in range(start + min_length, len(password) + 1):
             substring = password[start:end]
@@ -161,6 +184,8 @@ def find_best_match(
             best_has_frequency = best_match["frequency"] is not None
 
             # Prefer matches with known frequency.
+
+            # Prefere o match com uma frequência conhecida.
             if current_has_frequency and not best_has_frequency:
                 best_match = current_match
                 continue
@@ -169,6 +194,8 @@ def find_best_match(
                 continue
 
             # Both matches have frequency information.
+
+            # Ambos dos matches apresentam uma frequência.
             if current_has_frequency and best_has_frequency:
                 if frequency > best_match["frequency"]:
                     best_match = current_match
@@ -183,6 +210,8 @@ def find_best_match(
                 continue
 
             # Neither match has frequency information.
+
+            # Nenhum match tem uma frequência.
             if current_match["length"] > best_match["length"]:
                 best_match = current_match
 

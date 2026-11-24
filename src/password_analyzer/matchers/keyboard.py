@@ -3,6 +3,8 @@ KeyboardMatch = dict | None
 
 
 # Standard QWERTY keyboard layout.
+
+# Layout padrão de um teclado QWERTY
 KEYBOARD_ROWS = (
     "1234567890",
     "qwertyuiop",
@@ -12,7 +14,7 @@ KEYBOARD_ROWS = (
 
 def find_keyboard_pattern(password: str, min_length: int = 3) -> KeyboardMatch:
     """
-        The function find_keyboard_pattern finds a consecutive keyboard pattern in a password.
+        This function finds a consecutive keyboard pattern in a password.
 
         Supported keyboard rows:
             1234567890
@@ -31,12 +33,38 @@ def find_keyboard_pattern(password: str, min_length: int = 3) -> KeyboardMatch:
 
         Args:
             password: Password to analyze.
-            min_length: Minimum number of consecutive keyboard
-                characters required to consider a pattern.
+            min_length: Minimum number of consecutive characters to be consider an pattern
 
         Returns:
             A dictionary containing the detected pattern,
             or None if no keyboard pattern is found.
+    """
+
+    """
+        Essa função encontra um padrão consecutivo de um teclado em uma senha
+
+        Linhas de teclado suportadas:
+            1234567890
+            qwertyuiop
+            asdfghjkl
+            zxcvbnm
+
+        A busca é case-insensitive.
+
+        Exemplos:
+            qwerty123 -> qwerty
+            senhaasdf -> asdf
+            senha123456 -> 123456
+            senhazxcvbn -> zxcvbn
+            ytrewq -> ytrewq
+
+        Args:
+            password: senha para analizar,
+            min_length: Número mínimo de caractéres consecutivos para ser considerado um padrão.
+
+        Returns:
+            Um dicionário contendo o padrão detectado,
+            ou None caso nenhum padrão seja detectado.
     """
     if min_length < 2:
         raise ValueError("min_length must be at least 2")
@@ -76,6 +104,8 @@ def find_keyboard_pattern(password: str, min_length: int = 3) -> KeyboardMatch:
                         continue
 
                     # Prefer the longest keyboard pattern.
+
+                    # Prefere o maior padrão de teclado.
                     if current_match["length"] > best_match["length"]:
                         best_match = current_match
 

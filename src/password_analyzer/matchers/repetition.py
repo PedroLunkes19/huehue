@@ -8,7 +8,7 @@ def find_repetition(password: str, min_length: int = 3) -> RepetitionMatch:
     """
     Find a consecutive repetition of the same character in a password.
 
-    The repetition must contain at least min_length consecutive occurrences of the same character.
+    The repetition must contain at least min_length.
 
     Examples:
         senha123 -> no repetition
@@ -18,12 +18,31 @@ def find_repetition(password: str, min_length: int = 3) -> RepetitionMatch:
 
     Args:
         password: Password to analyze.
-        min_length: Minimum number of consecutive identical
-            characters required to consider a repetition.
+        min_length: Minimum number of consecutive identical characters required to consider a repetition.
 
     Returns:
         A dictionary containing the detected repetition,
         or None if no repetition is found.
+    """
+
+    """
+    Encontra uma repetição consecutiva do mesmo caracter na senha.
+
+    A repetição deve conter no mínimo min_length.
+
+    Exemplos:
+        senha123 -> no repetition
+        senha111 -> 111
+        passaaa123 -> aaa
+        senha!!!! -> !!!!
+
+    Args:
+        password: Senha para ser analizada.
+        min_length: Número mínimo de caractéres identicos consecutivos para ser considerado repetição.
+
+    Retorna:
+        Um dicionário contendo a repetição detectada,
+        ou None caso não seja encontrado repetição.
     """
     if min_length < 2:
         raise ValueError("min_length must be at least 2")

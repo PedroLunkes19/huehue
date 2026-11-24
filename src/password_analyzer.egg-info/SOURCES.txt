@@ -1,7 +1,6 @@
 LICENSE
 README.md
 pyproject.toml
-src/password_analyzer/__init__.py
 src/password_analyzer/main.py
 src/password_analyzer.egg-info/PKG-INFO
 src/password_analyzer.egg-info/SOURCES.txt

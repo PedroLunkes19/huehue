@@ -29,6 +29,21 @@ def find_numeric_sequence(password: str) -> PatternMatch | None:
         A dictionary containing the sequence,
         or None if no sequence is found.
     """
+
+    """
+        Encontra uma sequencia numérica crescente ou decrescente.
+    
+        Exemplos:
+            senha123 -> 123
+            senha321 -> 321
+            abc456xyz -> 456
+            senha987 -> 987
+    
+        Retorna:
+            Um dicionário contendo a sequência,
+            ou None caso nenhuma sequência seja encontrada.
+    """
+
     match = SEQUENCE_PATTERN.search(password)
 
     if match is None:
@@ -47,6 +62,8 @@ def find_numeric_sequence(password: str) -> PatternMatch | None:
 
 def find_first_character_uppercase(password: str) -> PatternMatch | None:
     # Check whether the first character is the only uppercase character in the password.
+
+    # Checa caso o primeiro caractere é o único caractere maiúsculo na senha.
     if not password:
         return None
 
@@ -71,6 +88,8 @@ def find_first_character_uppercase(password: str) -> PatternMatch | None:
 
 def find_trailing_characters(password: str) -> PatternMatch | None:
     # Find numeric or special characters at the end of a password.
+
+    # Encontra números ou caractéres especiais no final da senha.
     match = re.search(
         r"(?P<trailing>[\d\W_]+)$",
         password,
@@ -92,6 +111,8 @@ def find_trailing_characters(password: str) -> PatternMatch | None:
 
 def find_patterns(password: str) -> list[PatternMatch]:
     # Find all known patterns in a password.
+
+    # Encontra todos os padrões conhecidos na senha.
     patterns: list[PatternMatch] = []
 
     numeric_sequence = find_numeric_sequence(password=password)

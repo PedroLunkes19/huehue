@@ -48,6 +48,8 @@ DATASETS = {
 
 
 # Load all configured dictionary datasets.
+
+# Carrega todos os datesets de dicionários configurados
 def load_datasets(data_directory: Path = DATA_DIRECTORY) -> dict:
     datasets = {}
 
@@ -72,6 +74,9 @@ def load_datasets(data_directory: Path = DATA_DIRECTORY) -> dict:
 
 # Check a password against all dictionary datasets.
 # All matches are returned and ordered by dataset priority.
+
+# Checa a senha em todos os datasets.
+# Todos os matches são retornados e ordenados pela prioridade de dataset.
 def check_dictionary_matches(password: str, datasets: dict, min_length: int = 3) -> dict:
     matches = []
 
@@ -130,6 +135,34 @@ def match_password(password: str, datasets: dict, min_dictionary_length: int = 3
     Returns:
         A dictionary containing the result of every matcher.
     """
+
+    """
+    Realiza todos os testes de padrões contra a senha
+    
+    Matchers:
+        - dictionary
+        - date
+        - repetition
+        - patterns
+        - keyboard
+
+    Args:
+        password:
+            senha para ser analizada.
+        
+        dataset:
+            Dicionário carregado.
+        
+        min_dictionary_length:
+            O tamanho mínimo para o match em um dicionário.
+        
+        min_repetition_length:
+            O tamanho mínimo para caractéres repetidos.
+        
+        min_keyboard_length:
+            O tamanho mínimo para padrões de teclado.
+    """
+    
     return {
         "password": password,
 

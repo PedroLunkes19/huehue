@@ -6,7 +6,17 @@ Password analysis workflow (see docs/architecture.md):
 Final score:
     0/4  password found in a breach (or blacklisted)
     1-4  otherwise, from the estimated number of guesses
-         (the raw 0-4 zxcvbn score is kept in `raw_score`)
+         (the raw 0-4 zxcvbn score is kept in "raw_score")
+"""
+
+"""
+Fluxo da análise da senha (veja em docs/arquitetura.md):
+
+    HIBP check -> rules -> pattern matchers -> guess search -> score
+
+Score final:
+    0/4  senha encontrada em um vazamento (ou proibida)
+    1-4  vem do número estimado de tentativas (o score raw 0-4 é mantido em "raw-score")
 """
 
 from operator import add
@@ -38,8 +48,11 @@ from .scoring import (
 )
 
 
-# Passwords longer than this are analyzed only up to this many characters,
-# bounding the cost of the search. (The breach check uses the full password.)
+# Passwords longer than this are analyzed only up to this many characters, bounding the cost of the search.
+# The breach check uses the full password.
+
+# Senhas maiores que isso são analizadas somente até este número de caractéres, limitando o custo da procura.
+# Checagens de vazamento usam toda a senha
 MAX_ANALYZED_LENGTH = 128
 
 MIN_DICTIONARY_LENGTH = 3
@@ -70,11 +83,22 @@ class PasswordAnalyzer:
 
     Args:
         datasets: Loaded dictionary datasets (default: load_datasets()).
-        breach_checker: Callable(password) -> {"found": bool, "count": int}.
-            Defaults to the HIBP k-anonymity API. Pass None to disable.
+        breach_checker: Callable(password) -> {"found": bool, "count": int}. Defaults to the HIBP k-anonymity API. Pass None to disable.
         max_length: Maximum number of characters analyzed locally.
         bruteforce_scope: "token" (default, conservative) or "password"
             (nbvcxz behaviour). See scoring.most_guessable_match_sequence.
+    """
+
+    """
+    Avalia senhas. Datasets e ranque de tabelas são todos carregados uma vez,
+    então o reusa uma única instância para analizar várias senhas.
+
+    Args:
+        datasets: Datasets de dicionários carregados (default: load_datasets());
+        breach_checker: Chamada(senha) -> {"found": bool, "count": int}. Assume, por padrão, a k-anonymity da API do HIBP. Passe None para desativar.
+        max_length: Número máximo de caractéres analizados localmente
+        bruteforce_scope: "token" (padrão, conservativo) ou "password" (comportamento do nbvcxz). Veja scoring.most_guessable_match_sequence.
+
     """
 
     def __init__(
@@ -92,17 +116,24 @@ class PasswordAnalyzer:
 
     # ------------------------------------------------------------------
     # Matcher output -> Match objects
+    #
+    # Saída do Matcher -> Objetos Match
     # ------------------------------------------------------------------
 
     def build_matches(self, password: str) -> list[Match]:
         """Run every matcher and convert their results into Match objects."""
+        """Roda todo o matcher convertido no seu resultado em objetos Match."""
         matches: list[Match] = []
 
         # Dictionary.
+
+        # Dicionário.
         for name, dataset in self.datasets.items():
             self._collect_dictionary_matches(password, 0, name, dataset, matches)
 
         # Date.
+
+        # Data.
         item = find_date(password)
         if item is not None:
             matches.append(Match(
@@ -117,6 +148,8 @@ class PasswordAnalyzer:
             ))
 
         # Repetition of a single character (e.g. "aaaa").
+
+        # Repetição do mesmo caractere (ex. "aaaa").
         item = find_repetition(password, min_length=3)
         if item is not None:
             character = Match(
@@ -137,11 +170,17 @@ class PasswordAnalyzer:
             ))
 
         # Numeric sequences (123, 321, ...) and other general patterns.
+
+        # Sequências numéricas (123 , 321 , ...) e outros padrões gerais.
         for item in find_patterns(password):
             if item["match_type"] != "numeric_sequence":
                 # "first character uppercase" and "trailing numbers/special"
                 # are handled by the uppercase variations and by the
                 # bruteforce estimate; they are not standalone matches.
+
+                # "primeiro caractere maiúsculo" e "terminar com números/caractéres especiais"
+                # são lidados pela variação uppercase e pela estimativa de bruteforce.
+                # Eles não são matches únicos.
                 continue
 
             value = item["value"]
@@ -154,6 +193,8 @@ class PasswordAnalyzer:
             ))
 
         # Keyboard rows (qwerty, asdf, 1234567890, ...), straight runs only.
+
+        # Linhas de teclado (qwerty, asdf, 1234567890, ...) apenas horizontais.
         item = find_keyboard_pattern(password, min_length=3)
         if item is not None:
             token = item["value"]
@@ -177,9 +218,16 @@ class PasswordAnalyzer:
         out: list[Match],
     ) -> None:
         """
-        find_best_match returns a single match per dataset. To give the
-        search every candidate it needs (e.g. "help" + "here"), the text
-        on both sides of each match is searched again, recursively.
+        find_best_match returns a single match per dataset. 
+        To give the search every candidate it needs, the text  on both sides of each match is searched again,
+        recursively.
+        """
+
+        """
+        find_best_match retorna um único match por dataset. 
+        Para fornecer à busca todos os candidatos necessários, o texto em ambos os lados de cada correspondência é pesquisado novamente,
+        de forma recursiva.
+        
         """
         if len(text) < MIN_DICTIONARY_LENGTH:
             return
@@ -230,10 +278,14 @@ class PasswordAnalyzer:
             return value
 
         # Two digit years: 00-49 -> 2000s, 50-99 -> 1900s.
+
+        # Anos de dois digitos: 00-49 -> 2000s, 50-99 -> 1900s.
         return 2000 + value if value < 50 else 1900 + value
 
     # ------------------------------------------------------------------
     # Breach check
+    #
+    # Checagem em vazamentos
     # ------------------------------------------------------------------
 
     def _check_breach(self, password: str) -> tuple[bool | None, int]:
@@ -243,8 +295,11 @@ class PasswordAnalyzer:
         try:
             result = self.breach_checker(password)
         except (requests.RequestException, ValueError):
-            # Network failure or malformed answer: continue with the local
-            # analysis and report the breach status as unknown.
+            # Network failure or malformed answer: c
+            # Continue with the local analysis and report the breach status as unknown.
+
+            # Erro de network or resposta malformada:
+            # Continua análise local e reporta o status de vazemento como unknown.
             return None, 0
 
         return result["found"], result["count"]
@@ -296,6 +351,7 @@ class PasswordAnalyzer:
 
     # ------------------------------------------------------------------
     # Public API
+    # API Pública
     # ------------------------------------------------------------------
 
     def analyze(self, password: str, check_breach: bool = True) -> PasswordResult:
@@ -323,6 +379,7 @@ class PasswordAnalyzer:
             score = 0
         else:
             # Methodology: passwords not found in breaches score 1-4.
+            # Metodologia: senhas não encontradas em vazementos pontuam de 1-4.
             score = max(raw_score, 1)
 
         warnings, suggestions = self._feedback(

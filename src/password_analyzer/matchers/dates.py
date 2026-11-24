@@ -29,6 +29,20 @@ def find_date(password: str) -> DateMatch:
         A dictionary containing the detected date,
         or None if no date is found.
     """
+
+    """
+    Encontra uma data contida na senha.
+
+    Formatos suportados:
+        DD/MM/YY
+        DD/MM/YYYY
+        DDMMYY
+        DDMMYYYY
+
+    Retorna:
+        Um dicionário contendo a data detectada,
+        ou None se nenhuma data foi detectada.
+    """
     match = DATE_PATTERN.search(password)
 
     if match is None:

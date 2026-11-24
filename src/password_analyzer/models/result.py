@@ -9,10 +9,18 @@ class Match:
     A pattern found in a password, expressed as a span [i, j] (inclusive).
 
     This is the unified structure consumed by the scoring search.
-    The matchers return heterogeneous dictionaries; the analyzer converts
-    them into Match objects (see core/analyzer.py).
+    The matchers return heterogeneous dictionaries; the analyzer converts them into Match objects (see core/analyzer.py).
 
     Patterns: dictionary | date | repeat | sequence | spatial | bruteforce
+    """
+
+    """
+    Um padrão encontrado em uma senha, expressado em uma expressão [i , j] (inclusivo).
+
+    Esse é a estrutura unificada consumida pela pesquisa de pontuação
+    Os matchers retornam dicionários heterogeneos, o analyzer os converte em objetos Match (veja core/analyzer.py);
+
+    Padrões: dictionary | date | repeat | sequence | spatial | bruteforce
     """
 
     pattern: str
@@ -21,6 +29,8 @@ class Match:
     j: int
 
     # Filled by core.entropy.estimate_guesses (cached after the first call).
+
+    # Preenchido pelo core.entropy.estimate_(guesses) (colocado em cache depois da primeira chamada).
     guesses: int | None = None
     guesses_log10: float | None = None
 
@@ -51,21 +61,29 @@ class Match:
 @dataclass
 class PasswordResult:
     """Final evaluation of a password. The password itself is never stored."""
+    """Avaliação final da senha. A prórpia senha nunca é armazenada."""
 
     password_length: int
 
     # Final score (0-4) and the raw guess-based score before any override.
+
+    # Score final (0-4) e os raw guess-based scores anteriores são sobreescritos
     score: int
     raw_score: int
     label: str
 
     # Search space estimate.
+    
+    # Estimativa de espaço de busca.
     guesses: int
     guesses_log10: float
     entropy_bits: float
 
-    # Breach information. breached is None when the check was not performed
-    # or could not be completed (e.g. no network).
+    # Breach information. 
+    # breached is None when the check was not performed or could not be completed (e.g. no network).
+
+    # Informação sobre vazamentos. 
+    # breached é None quando a checagem não é realizada ou não conseguiu ser completada (ex. sem internet)
     breached: bool | None = None
     breach_count: int = 0
 

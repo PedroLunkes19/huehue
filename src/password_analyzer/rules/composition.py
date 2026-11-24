@@ -2,6 +2,8 @@ CompositionMatch = dict
 
 
 # Composition rules for the password
+
+# As regras de composição da senha
 MIN_LENGTH = 8
 REQUIRE_UPPERCASE = True
 REQUIRE_LOWERCASE = True
@@ -11,6 +13,9 @@ REQUIRE_NUMBER = True
 
 # Check the password against ALL composition rules.
 # Returns one entry per violated rule (empty list when the password is valid).
+
+# Checa a senha para TODAS as regras de composição.
+# Retona uma entrada a cada regra violada (uma lista vazia caso a senha não viole nenhuma).
 def check_composition(password: str) -> list[CompositionMatch]:
     violations: list[CompositionMatch] = []
 
