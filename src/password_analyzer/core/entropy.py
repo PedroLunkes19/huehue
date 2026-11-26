@@ -9,6 +9,16 @@ All guess values are Python integers, so very large search spaces never
 overflow (floats would break above ~1e308).
 """
 
+"""
+Estimativa de adivinhação para cada padrão.
+
+Baseado em:
+    - zxcvbn (scoring.coffee): estimativa de adivinhação por padrão.
+    - nbvcxz (BruteForceUtil): cardinalidade de força bruta a partir de conjuntos de caracteres.
+
+Todos os valores são integers do Python, então espaços de busca muito grandes nunca dão overflow (floats quebram acima de ~1e308).
+"""
+
 import math
 import re
 from datetime import date
@@ -18,13 +28,20 @@ from ..models.result import Match
 
 # ---------------------------------------------------------------------------
 # Constants
+#
+# Constantes
 # ---------------------------------------------------------------------------
 
 # Fallback brute force cardinality when a match carries none (zxcvbn uses 10).
+
+# Cardinalidade de força bruta quando um match não carrega nenhum (zxcvbn usa 10).
 BRUTEFORCE_CARDINALITY = 10
 
 # A sub-match (one that does not cover the whole password) never costs fewer
 # guesses than this. Prevents tiny matches from making a password look weak.
+
+# Um sub-match (um que não cobre toda a senha) nunca custa menos adivinhações do que isso. 
+# Evita que pequenos matches façam uma senha parecer fraca.
 MIN_SUBMATCH_GUESSES_SINGLE_CHAR = 10
 MIN_SUBMATCH_GUESSES_MULTI_CHAR = 50
 
@@ -32,6 +49,8 @@ MIN_YEAR_SPACE = 20
 REFERENCE_YEAR = date.today().year
 
 # QWERTY keyboard statistics, as computed by zxcvbn from its adjacency graph.
+
+# Estatísticas do teclado QWERTY, conforme calculado pelo zxcvbn a partir de seu grafo de adjacência.
 KEYBOARD_STARTING_POSITIONS = 47
 KEYBOARD_AVERAGE_DEGREE = 4.595744680851064
 
@@ -40,9 +59,11 @@ END_UPPER = re.compile(r"^[^A-Z]+[A-Z]$")
 ALL_UPPER = re.compile(r"^[^a-z]+$")
 ALL_LOWER = re.compile(r"^[^A-Z]+$")
 
-# Datasets whose file order is NOT a popularity order (so a line position
-# says nothing about how likely an entry is). For them the rank is the
-# dataset size: the attacker would have to try the whole list.
+# Datasets whose file order is NOT a popularity order (so a line position says nothing about how likely an entry is). 
+# For them the rank is the dataset size: the attacker would have to try the whole list.
+
+# Datasets cuja ordem de arquivo NÃO é uma ordem de popularidade (então a posição da linha não diz nada sobre a probabilidade de uma entrada).
+# Para eles, a classificação é o tamanho do conjunto de dados: o atacante teria que tentar a lista inteira.
 UNORDERED_DATASETS = {"eff_large"}
 
 
@@ -52,6 +73,8 @@ UNORDERED_DATASETS = {"eff_large"}
 
 def log10(value: int | float) -> float:
     # math.log10 supports arbitrarily large ints.
+
+    # math.log10 suporta ints arbitrariamente grandes.
     return math.log10(value)
 
 
@@ -61,19 +84,32 @@ def log2(value: int | float) -> float:
 
 def guesses_to_entropy_bits(guesses: int | float) -> float:
     """Entropy in bits equivalent to a number of guesses (log2)."""
+
+    """Entropia em bits equivalente a um número de adivinhações (log2)."""
     return log2(max(guesses, 1))
 
 
 def bruteforce_cardinality(text: str) -> int:
     """
-    Size of the character pool needed to brute force `text`, summing the
-    pools actually used (nbvcxz BruteForceUtil):
+    Size of the character pool needed to brute force `text`, 
+    summing the pools actually used (nbvcxz BruteForceUtil):
 
         lowercase a-z   -> 26
         uppercase A-Z   -> 26
         digits          -> 10
         ASCII symbols   -> 33 (including space)
         anything else   -> 100 (accents, other alphabets, ...)
+    """
+
+    """
+    Tamanho do conjunto de caracteres necessário para dar brute force `text`, 
+    somando os conjuntos realmente usados (nbvcxz BruteForceUtil):
+
+        letras minúsculas a-z   -> 26
+        letras maiúsculas A-Z   -> 26
+        dígitos                 -> 10
+        símbolos ASCII          -> 33 (incluindo espaço)
+        qualquer outra coisa     -> 100 (acentos, outros alfabetos, ...)
     """
     lower = upper = digits = symbols = other = False
 
@@ -100,6 +136,7 @@ def bruteforce_cardinality(text: str) -> int:
 
 # ---------------------------------------------------------------------------
 # Rank tables (dictionary matches)
+# Tabelas de classificação (matches de dicionário)
 # ---------------------------------------------------------------------------
 
 def build_rank_tables(datasets: dict) -> dict:
@@ -110,6 +147,16 @@ def build_rank_tables(datasets: dict) -> dict:
     insertion ordered), and every dataset is sorted from most to least
     common, so the line position is the rank (1 = most common).
     """
+
+    """
+    Construa {dataset_name: {"ranks": {entry: rank}, "size": n, "ordered": bool}}.
+
+    Os carregadores mantêm a ordem do arquivo dentro do dicionário `frequencies` 
+    (os dicionários são ordenados por inserção), e cada conjunto de dados é
+    classificado do mais comum para o menos comum, então a posição da linha é a
+    classificação (1 = mais comum).
+    """
+
     tables = {}
 
     for name, dataset in datasets.items():
@@ -129,6 +176,7 @@ def build_rank_tables(datasets: dict) -> dict:
 
 # ---------------------------------------------------------------------------
 # Per-pattern estimators
+# Estimadores por padrão
 # ---------------------------------------------------------------------------
 
 def bruteforce_guesses(match: Match) -> int:
@@ -137,6 +185,9 @@ def bruteforce_guesses(match: Match) -> int:
 
     # One more than the smallest allowed sub-match guesses, so that
     # non-bruteforce matches over the same span take precedence.
+
+    # Um a mais do que o menor número de adivinhações de sub-match permitido, para que
+    # matches de não brute force no mesmo intervalo tenham precedência.
     min_guesses = (
         MIN_SUBMATCH_GUESSES_SINGLE_CHAR + 1
         if len(match.token) == 1
@@ -152,12 +203,18 @@ def uppercase_variations(word: str) -> int:
 
     # Capitalized, all caps and end-capitalized are common schemes:
     # underestimated as a 2x factor to be safe.
+
+    # Capitalizado, todas as letras maiúsculas e capitalizado no final são esquemas comuns:
+    # subestimado como um fator de 2x para ser seguro.
     for regex in (START_UPPER, END_UPPER, ALL_UPPER):
         if regex.match(word):
             return 2
 
-    # Otherwise count the ways to capitalize U+L letters with U (or fewer)
-    # uppercase letters; the mirrored case when lowercase is the minority.
+    # Otherwise count the ways to capitalize U+L letters with U (or fewer) uppercase letters; 
+    # the mirrored case when lowercase is the minority.
+
+    # Caso contrário, conte as maneiras de capitalizar U+L letras com U (ou menos) letras maiúsculas; 
+    # o caso trocado quando minúsculas são a minoria.
     upper = sum(1 for c in word if "A" <= c <= "Z")
     lower = sum(1 for c in word if "a" <= c <= "z")
 
@@ -179,6 +236,8 @@ def sequence_guesses(match: Match) -> int:
     first = match.token[0]
 
     # Lower guesses for obvious starting points.
+
+    # Menores adivinhações para pontos de partida óbvios.
     if first in ("a", "A", "z", "Z", "0", "1", "9"):
         base_guesses = 4
     elif first.isdigit():
@@ -187,6 +246,8 @@ def sequence_guesses(match: Match) -> int:
         base_guesses = 26
 
     # A descending sequence must be tried in addition to the ascending one.
+
+    # Uma sequência descrencente deve ser tentada além da crescente.
     if not match.ascending:
         base_guesses *= 2
 
@@ -200,6 +261,8 @@ def spatial_guesses(match: Match) -> int:
     turns = match.turns
 
     # Number of possible patterns of length L or less with t turns or less.
+
+    # Número de padrões possíveis de comprimento L ou menos com t curvas ou menos.
     guesses = 0.0
 
     for i in range(2, length + 1):
@@ -209,6 +272,8 @@ def spatial_guesses(match: Match) -> int:
             guesses += math.comb(i - 1, j - 1) * s * (d ** j)
 
     # Extra guesses for shifted keys (uppercase letters).
+
+    # Adivinhações extras para teclas com shift (letras maiúsculas).
     if match.shifted_count:
         shifted = match.shifted_count
         unshifted = length - shifted
@@ -223,15 +288,21 @@ def spatial_guesses(match: Match) -> int:
             guesses *= variations
 
     # round first: float accumulation noise must not push ceil() up by one.
+
+    # arredondar primeiro: o ruído de acumulação de um float não deve colocar o ceil() como mais um.
     return math.ceil(round(guesses, 6))
 
 
 def date_guesses(match: Match) -> int:
     # year distance from the reference year * number of days in a year
+
+    # distância do ano em relação ao ano de referência * número de dias em um ano
     year_space = max(abs(match.year - REFERENCE_YEAR), MIN_YEAR_SPACE)
     guesses = year_space * 365
 
     # Factor of 4 for the separator choice.
+
+    # Fator de 4 para a escolha do separador.
     if match.separator:
         guesses *= 4
 
@@ -250,6 +321,8 @@ _ESTIMATORS = {
 
 def estimate_guesses(match: Match, password: str) -> int:
     """Number of guesses an attacker needs for `match` (cached in the match)."""
+
+    """Número de adivinhações que um atacante precisa para `match` (armazenado em cache no match)."""
     if match.guesses is not None:
         return match.guesses
 
