@@ -1,6 +1,6 @@
 # huehue - Password Strength Estimator
 
-huehue is a *python-based* password strength estimator heavily inspired by the word in [zxcvbn](https://github.com/dropbox/zxcvbn) (Dropbox) and [nbvcxz](https://github.com/GoSimpleLLC/nbvcxz) (GoSimple).
+huehue is a *python-based* password strength estimator heavily inspired by the work in [zxcvbn](https://github.com/dropbox/zxcvbn) (Dropbox) and [nbvcxz](https://github.com/GoSimpleLLC/nbvcxz) (GoSimple).
 
 huehue estimates the number of guesses needed to crack a password. To do so, it identifies patterns in the password (dictionary words, names, dates, sequences, keyboard rows and repetitions), calculates the number of guesses for each pattern and converts the total into a score from 0 to 4. The result also includes the estimated crack time, warnings and suggestions.
 
@@ -52,6 +52,8 @@ Final score rule:
 | < 10⁸ | 2 | fair |
 | < 10¹⁰ | 3 | strong |
 | ≥ 10¹⁰ | 4 | very strong |
+
+The thresholds use an offset of 5 (`SCORE_DELTA`), as explained in the [evaluation methodology](docs/EN/methodology.md#61-score).
 
 ## Installation
 
@@ -131,7 +133,9 @@ print(result.warnings)
 
 Create **a single instance** and reuse it: the dictionaries (some with millions of lines) are loaded once, in the constructor. There is also the shortcut `analyze_password(password)` in `core/analyzer.py`, which creates and reuses a default instance. See [`examples/example.py`](examples/example.py).
 
-The `PasswordResult` object contains, among others: `score`, `raw_score`, `label`, `guesses`, `guesses_log10`, `entropy_bits`, `breached`, `breach_count`, `blacklisted`, `rule_violations`, `sequence` (the patterns found), `crack_times_seconds`, `crack_times_display`, `warnings` and `suggestions`. The password itself is **never** stored in the result.
+The `PasswordResult` object contains, among others: `score`, `raw_score`, `label`, `guesses`, `guesses_log10`, `entropy_bits`, `breached`, `breach_count`, `blacklisted`, `rule_violations`, `sequence` (the patterns found), `crack_times_seconds`, `crack_times_display`, `warnings` and `suggestions`.
+
+The analyzer does not store the complete password in a dedicated field. However, the analysis result may contain sensitive password data: `Match` objects retain matched tokens, and rule violations may include values derived from the original password. These fields are also included when the result is serialized with `to_dict()` or exported as JSON. Therefore, analysis results and JSON outputs should be treated as sensitive data.
 
 ## Tests
 
@@ -161,19 +165,21 @@ huehue/
 
 ## Where to find more information
 
-The documents in `docs/` are written in Portuguese.
+The project documentation is available in English and Brazilian Portuguese (PT-BR).
 
-| Document | Contents |
-|---|---|
-| [`docs/architecture.md`](docs/architecture.md) | Architecture, the responsibility of each folder and file, and the step-by-step code flow |
-| [`docs/methodology.md`](docs/methodology.md) | The mathematics and methodology of the evaluation, with references to zxcvbn and nbvcxz and where to check them in their repositories |
-| [`docs/hibp.md`](docs/hibp.md) | How the Have I Been Pwned integration works |
+| Document | English | Português (PT-BR) |
+|---|---|---|
+| Architecture | [`architecture.md`](docs/EN/architecture.md) | [`arquitetura.md`](docs/PT-BR/arquitetura.md) |
+| Methodology | [`methodology.md`](docs/EN/methodology.md) | [`metodologia.md`](docs/PT-BR/metodologia.md) |
+| HIBP Integration | [`hibp_EN.md`](docs/EN/hibp_EN.md) | [`hibp_PTBR.md`](docs/PT-BR/hibp_PTBR.md) |
+
+
 
 ## Known limitations
 
-huehue implements part of the ideas of zxcvbn and nbvcxz and is **not a faithful reimplementation of either**. It does not perform "leet" substitution (`p4ssw0rd`), does not recognize reversed words and does not do approximate matching (Levenshtein distance), and the keyboard detector only recognizes straight-line sequences. The full list of differences is in [`docs/methodology.md`](docs/methodology.md#9-diferenças-em-relação-ao-zxcvbn-e-ao-nbvcxz).
+huehue is inspired by zxcvbn and nbvcxz but does not fully reimplement either evaluator. Its pattern detection has some limitations: it does not recognize letter substitutions (e.g., `p4ssw0rd`), reversed words, approximate word matches, letter sequences, or repeated blocks. Its keyboard detector only recognizes straight-line sequences across four QWERTY keyboard rows, and its date detector supports only `DDMMYY` and `DDMMYYYY` formats, with or without `/` separators. Additionally, only the first occurrence of date, repetition, sequence, and keyboard patterns is detected, and password pattern analysis is limited to the first 128 characters. The dictionaries include Brazilian and English names and surnames, but common words are limited to English. For a detailed comparison with zxcvbn and nbvcxz, as well as the complete list of known limitations, see [the evaluation methodology](docs/EN/methodology.md#7-differences-between-the-evaluators-and-huehues-limitations).
 
-The score is an estimate and depends on the dictionaries and patterns described in [`docs/methodology.md`](docs/methodology.md).
+The score is an estimate and depends on the dictionaries and patterns described in [`docs/EN/methodology.md`](docs/EN/methodology.md).
 
 ## References
 

@@ -19,7 +19,7 @@ O huehue também informa `entropy_bits`, que é `log₂(tentativas)`. É apenas 
 
 ## 2. Consulta de vazamentos
 
-O huehue consulta a API Pwned Passwords do Have I Been Pwned. Apenas os 5 primeiros caracteres do hash SHA-1 da senha são enviados, e a comparação do restante é feita localmente (k-anonimato). O funcionamento está em [`hibp.md`](hibp.md).
+O huehue consulta a API Pwned Passwords do Have I Been Pwned. Apenas os 5 primeiros caracteres do hash SHA-1 da senha são enviados, e a comparação do restante é feita localmente (k-anonimato). O funcionamento está em [`hibp_PTBR.md`](hibp_PTBR.md).
 
 Uma senha encontrada em vazamento recebe nota 0, independentemente do tamanho ou da composição. Se a consulta falhar (por exemplo, sem internet), o resultado de vazamento fica como desconhecido e a análise local continua.
 
@@ -323,8 +323,8 @@ Rótulos:
 | 4 | muito forte |
 
 
-Junto da nota, é apresentados avisos e sugestões dependendo de quais padrões foram detectados na senha. Por exemplo, caso a senha possua um nome próprio ela recebe o aviso em relação a nomes próprios, caso a senha possua menos de 12
-caractéres, a senha recebe uma sugestão para ser mais longa.
+Junto da nota, são apresentados avisos e sugestões dependendo de quais padrões foram detectados na senha. Por exemplo, caso a senha possua um nome próprio ela recebe o aviso em relação a nomes próprios, caso a senha possua menos de 12
+caracteres, a senha recebe uma sugestão para ser mais longa.
 
 ### 6.2 Tempo de quebra
 

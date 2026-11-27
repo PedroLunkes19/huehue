@@ -58,7 +58,7 @@ Contém o fluxo principal de análise de senhas e os cálculos utilizados para a
 
 Contém as funções responsáveis por identificar estruturas previsíveis em uma senha.
 
-- **`dictionary.py`** procura palavras, senhas comuns, nomes e sobrenomes nos conjuntos de dados carregados. As comparações não diferenciam maiúsculas de minúsculas apenas nos conjuntos de dados configurados para normalização de capitalização.
+- **`dictionary.py`** procura palavras, senhas comuns, nomes e sobrenomes nos conjuntos de dados carregados. As comparações não diferenciam maiúsculas de minúsculas apenas nos conjuntos de dados configurados para normalização de maiúsculas e minúsculas.
 - **`dates.py`** procura sequências semelhantes a datas nos formatos reconhecidos pelo módulo. Retorna a primeira ocorrência encontrada.
 - **`repetition.py`** detecta repetições consecutivas do mesmo caractere e retorna a primeira ocorrência encontrada.
 - **`patterns.py`** detecta sequências numéricas em ordem crescente ou decrescente. O analisador utiliza a primeira sequência numérica retornada por esse módulo. Outros padrões identificados por ele, como uma única letra maiúscula no início ou números e caracteres especiais no final da senha, não são adicionados como correspondências independentes pelo analisador.
